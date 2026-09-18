@@ -1,9 +1,10 @@
-const CACHE_NAME = 'etm-tools-v2';
+const CACHE_NAME = 'etm-tools-v4';
 const urlsToCache = [
   './',
   './index.html',
   './manifest.json',
-  './image_e7b35e.png'
+  './machine.png',
+  './logo-new.png'
 ];
 
 // בעת התקנת האפליקציה, שמור את הקבצים במטמון
@@ -28,5 +29,20 @@ self.addEventListener('fetch', event => {
         }
         return fetch(event.request);
       })
+  );
+});
+
+// מחיקת גרסאות ישנות של הזיכרון כדי למנוע התנגשויות
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.filter(cacheName => {
+          return cacheName !== CACHE_NAME;
+        }).map(cacheName => {
+          return caches.delete(cacheName);
+        })
+      );
+    })
   );
 });
