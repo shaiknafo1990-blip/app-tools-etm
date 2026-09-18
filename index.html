@@ -8,7 +8,12 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Tesseract.js לסריקת התמונות (גרסה 5 יציבה) -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-    <link rel="manifest" href="manifest.json">
+    
+    <!-- פטיש האוויר לאייקונים: מכריח את הטלפון למשוך את הלוגו החדש -->
+    <link rel="manifest" href="manifest.json?v=2">
+    <link rel="apple-touch-icon" href="logo-new.png">
+    <link rel="icon" type="image/png" href="logo-new.png">
+    
     <script>
         tailwind.config = {
             theme: {
@@ -18,10 +23,10 @@
             }
         }
         
-        // רישום קובץ האופליין (Service Worker)
+        // רישום קובץ האופליין (Service Worker) - מנסה למשוך את הגרסה החדשה
         if ('serviceWorker' in navigator) {
           window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js')
+            navigator.serviceWorker.register('./sw.js?v=4')
               .then(reg => console.log('Service Worker Registered'))
               .catch(err => console.log('Service Worker Failed:', err));
           });
@@ -91,7 +96,7 @@
                         <path d="M 68 55 L 72 55 M 68 65 L 72 65 M 68 75 L 72 75 M 68 85 L 72 85" stroke="#dc2626" stroke-width="2" />
                     </svg>
                 </div>
-                <h1 class="text-2xl font-black tracking-tight text-gray-800"><span class="text-etm-red">ETM</span> Tools</h1>
+                <h1 class="text-2xl font-black tracking-tight text-gray-800"><span class="text-etm-red">CNC</span> Tools</h1>
             </div>
             <button onclick="showMasterTable()" class="bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-bold shadow hover:bg-gray-700 transition">
                 כל הכלים במפעל
@@ -115,7 +120,7 @@
                 <div id="search-results" class="mt-4 hidden bg-gray-50 rounded-xl p-4 border border-gray-200 max-h-60 overflow-y-auto"></div>
             </div>
 
-            <!-- OCR Scanner Section (עם שני כפתורים נפרדים) -->
+            <!-- OCR Scanner Section -->
             <div class="bg-white p-5 rounded-2xl shadow border border-gray-100 mb-8">
                 <h2 class="text-xl font-bold text-gray-800 mb-4 px-1">סריקת רשימת כלים מתמונה</h2>
                 <div class="flex gap-4">
@@ -123,7 +128,6 @@
                     <label class="flex-1 bg-etm-red hover:bg-red-700 text-white text-center py-4 rounded-xl shadow cursor-pointer font-bold flex flex-col justify-center items-center gap-2 transition active:scale-95">
                         <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                         <span>צלם רשימה</span>
-                        <!-- capture="environment" מכריח פתיחת מצלמה -->
                         <input type="file" id="ocr-camera" accept="image/*" capture="environment" class="hidden" onchange="handleOCR(event)">
                     </label>
                     
@@ -131,11 +135,9 @@
                     <label class="flex-1 bg-gray-800 hover:bg-gray-700 text-white text-center py-4 rounded-xl shadow cursor-pointer font-bold flex flex-col justify-center items-center gap-2 transition active:scale-95">
                         <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                         <span>בחר מגלריה</span>
-                        <!-- ללא capture, פותח בחירת קבצים/גלריה -->
                         <input type="file" id="ocr-gallery" accept="image/*" class="hidden" onchange="handleOCR(event)">
                     </label>
                 </div>
-                
                 <!-- הודעות סטטוס לסריקה שייראו לעין -->
                 <div id="ocr-status" class="mt-4 text-center text-sm font-bold text-blue-600 hidden bg-blue-50 py-2 rounded-lg"></div>
             </div>
@@ -258,7 +260,6 @@
     </main>
 
     <script>
-        // Options Data
         const ADAPTER_OPTIONS = ['','ER16x80', 'ER16x100', 'ER16x120', 'EM16X80', 'EM20x80', 'ER32x80', 'ER32x100', 'ER32x120'];
         const SHRINK_OPTIONS = ['','3x35', '4x35', '5x35', '6x35', '7x35', '8x35', '3x60', '4x60', '5x60', '6x60', '7x60', '8x60'];
         
@@ -266,12 +267,9 @@
             '1': [], '2': [], '3': []
         };
         let currentMachineId = null;
-        
-        // Modal State Variables
         let toolToCopyIndex = null;
         let toolToDeleteIndex = null;
 
-        // Custom UI Toasts
         function showToast(message, duration = 3000) {
             const toast = document.getElementById('toast-message');
             toast.innerText = message;
@@ -279,7 +277,6 @@
             setTimeout(() => { toast.classList.remove('show'); }, duration);
         }
 
-        // Initialization
         window.onload = () => {
             updateMachineCounts();
         };
@@ -295,7 +292,6 @@
             document.getElementById('count-machine-3').innerText = `${db['3'].length} כלים`;
         }
 
-        // Navigation
         function goHome() {
             document.getElementById('home-screen').classList.remove('hidden');
             document.getElementById('machine-screen').classList.add('hidden');
@@ -335,7 +331,6 @@
             }
         }
 
-        // Table Render & Data Binding (שימוש ב-oninput לשמירה בזמן אמת)
         function renderMachineTable() {
             const tbody = document.getElementById('tools-tbody');
             tbody.innerHTML = '';
@@ -390,11 +385,9 @@
             db[currentMachineId].push({ number: '', desc: '', rf: '', chip: false, adapter: '', shrink: '', notes: '' });
             saveDB();
             renderMachineTable();
-            // גלילה אוטומטית למטה
             setTimeout(() => { window.scrollTo(0, document.body.scrollHeight); }, 100);
         }
 
-        // Copy Tool Logic
         function openCopyModal(index) {
             toolToCopyIndex = index;
             document.getElementById('copy-modal').classList.remove('hidden');
@@ -407,14 +400,13 @@
 
         function executeCopy(targetMachineId) {
             if (toolToCopyIndex === null) return;
-            const toolToCopy = JSON.parse(JSON.stringify(db[currentMachineId][toolToCopyIndex])); // Deep copy
+            const toolToCopy = JSON.parse(JSON.stringify(db[currentMachineId][toolToCopyIndex]));
             db[targetMachineId].push(toolToCopy);
             saveDB();
             closeCopyModal();
             showToast(`הכלי הועתק בהצלחה למכונה ${targetMachineId}`);
         }
 
-        // Delete Tool Logic
         function openDeleteModal(index) {
             toolToDeleteIndex = index;
             document.getElementById('delete-modal').classList.remove('hidden');
@@ -434,7 +426,6 @@
             showToast('הכלי נמחק בהצלחה');
         }
 
-        // Search Functionality
         function performSearch() {
             const query = document.getElementById('global-search').value.toLowerCase().trim();
             const resultsDiv = document.getElementById('search-results');
@@ -475,7 +466,6 @@
             }
         }
 
-        // מערכת סריקת התמונות (OCR) - גרסה מכווצת למניעת קריסות בנייד
         async function handleOCR(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -485,7 +475,6 @@
             statusDiv.innerHTML = 'טוען תמונה ומכין לסריקה...';
 
             try {
-                // שלב 1: כיווץ התמונה לפני שליחה לפענוח (מוריד משקל מ-5MB ל-200KB)
                 const img = new Image();
                 const objUrl = URL.createObjectURL(file);
                 
@@ -494,7 +483,6 @@
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
                     
-                    // חישוב מידות כיווץ (מקסימום 1000 פיקסלים רוחב)
                     const MAX_WIDTH = 1000;
                     let width = img.width;
                     let height = img.height;
@@ -509,14 +497,13 @@
                     ctx.drawImage(img, 0, 0, width, height);
                     
                     canvas.toBlob(async (blob) => {
-                        // שלב 2: תהליך הפענוח
-                        statusDiv.innerHTML = 'מפענח טקסט... (ייתכן שלוקח דקה בהורדה ראשונה)';
+                        statusDiv.innerHTML = 'מפענח טקסט... (ייתכן שלוקח מעט זמן)';
                         
                         try {
                             const result = await Tesseract.recognize(blob, 'eng', {
                                 logger: m => {
                                     if(m.status === "downloading target") {
-                                        statusDiv.innerHTML = `מוריד נתוני שפה (רק בפעם הראשונה)... ${(m.progress*100).toFixed(0)}%`;
+                                        statusDiv.innerHTML = `מוריד נתוני שפה... ${(m.progress*100).toFixed(0)}%`;
                                     } else if(m.status === "recognizing text") {
                                         statusDiv.innerHTML = `סורק טקסט... ${(m.progress*100).toFixed(0)}%`;
                                     }
@@ -544,7 +531,7 @@
                             }
                         } catch (tessErr) {
                             console.error(tessErr);
-                            alert("שגיאה בסריקה: ודא שאתה מחובר לאינטרנט בפעם הראשונה שאתה סורק כדי שהאפליקציה תוכל להוריד את קבצי השפה.");
+                            alert("שגיאה בסריקה. ודא שאתה מחובר לאינטרנט בפעם הראשונה.");
                             statusDiv.innerHTML = 'שגיאת רשת/סריקה.';
                         }
                         
@@ -557,7 +544,6 @@
                 statusDiv.innerHTML = 'שגיאה כללית. נסה שוב.';
             }
             
-            // איפוס הערך כדי שאפשר יהיה לצלם את אותה תמונה שוב אם נכשל
             event.target.value = '';
         }
     </script>
