@@ -134,7 +134,6 @@
                     <label class="flex-1 bg-etm-red hover:bg-red-700 text-white text-center py-4 rounded-xl shadow cursor-pointer font-bold flex flex-col justify-center items-center gap-2 transition active:scale-95">
                         <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                         <span>צלם רשימה</span>
-                        <!-- שים לב ל- capture="environment" שמכריח פתיחת מצלמה -->
                         <input type="file" id="ocr-camera" accept="image/*" capture="environment" class="hidden" onchange="handleOCR(event)">
                     </label>
                     
@@ -142,7 +141,6 @@
                     <label class="flex-1 bg-gray-800 hover:bg-gray-700 text-white text-center py-4 rounded-xl shadow cursor-pointer font-bold flex flex-col justify-center items-center gap-2 transition active:scale-95">
                         <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                         <span>בחר מגלריה</span>
-                        <!-- כאן אין capture, אז זה פותח בחירת קבצים/גלריה -->
                         <input type="file" id="ocr-gallery" accept="image/*" class="hidden" onchange="handleOCR(event)">
                     </label>
                 </div>
@@ -526,24 +524,26 @@
                             let ftnColumnIndex = -1;
 
                             for (let i = 0; i < lines.length; i++) {
-                                // מנקה רווחים מיותרים ומפצל את השורה למילים/עמודות לפי המרווחים ביניהן
                                 const columns = lines[i].trim().split(/\s+/);
                                 if (columns.length === 0 || columns[0] === "") continue;
 
-                                // 1. חיפוש הכותרת FTN אם עדיין לא מצאנו אותה
+                                // 1. חיפוש הכותרת FTN - גרסה סלחנית במיוחד
                                 if (ftnColumnIndex === -1) {
                                     for (let j = 0; j < columns.length; j++) {
-                                        if (columns[j].toUpperCase().includes('FTN')) {
-                                            ftnColumnIndex = j; // שומרים את המיקום של העמודה (למשל, עמודה מספר 2)
+                                        // מנקה את הטקסט מסימנים כמו קווים תחתונים (_) או נקודות כדי למצוא את האותיות נקיות
+                                        const cleanText = columns[j].toUpperCase().replace(/[^A-Z]/g, '');
+                                        // מחפש FTN או שגיאות קריאה נפוצות של התוכנה
+                                        if (cleanText.includes('FTN') || cleanText.includes('FTM') || cleanText.includes('FIN')) {
+                                            ftnColumnIndex = j;
                                             break;
                                         }
                                     }
                                 } 
-                                // 2. אם כבר מצאנו את העמודה בשורות קודמות, ניקח את המספר שבאותו מיקום בדיוק
+                                // 2. אם כבר מצאנו את העמודה בשורות קודמות
                                 else if (columns.length > ftnColumnIndex) {
                                     let cellValue = columns[ftnColumnIndex];
                                     
-                                    // תיקון שגיאות OCR נפוצות (למשל, זיהוי של האות O באנגלית במקום הספרה אפס)
+                                    // תיקון שגיאות OCR נפוצות למספרים (למשל, O לאפס)
                                     cellValue = cellValue.replace(/O/gi, '0');
                                     
                                     // מחפשים רק רצף חוקי של 3 עד 8 ספרות
@@ -572,7 +572,7 @@
                                 }
                             } else {
                                 if (ftnColumnIndex === -1) {
-                                    alert("לא הצלחתי לזהות את הכותרת 'FTN' בדף. אנא ודא שהיא מופיעה ברור בתמונה.");
+                                    alert("לא הצלחתי לזהות את הכותרת 'FTN' בדף. אנא ודא שהיא מופיעה ברור בתמונה (ללא קשקושים שעולים עליה).");
                                     statusDiv.innerHTML = 'לא נמצאה כותרת FTN.';
                                 } else {
                                     alert("זיהיתי את העמודה FTN, אבל לא מצאתי מספרי כלים תקינים תחתיה.");
