@@ -517,39 +517,49 @@
                                 }
                             });
                             
-                            // ===== תחילת הלוגיקה החכמה לזיהוי עמודת FTN =====
-                            const text = result.data.text;
-                            const lines = text.split('\n');
+                            // ===== תחילת הלוגיקה החכמה לזיהוי מיקום ויזואלי (Bounding Box) =====
+                            const words = result.data.words;
                             let numbers = [];
-                            let ftnColumnIndex = -1;
+                            let ftnColumnXCenter = null;
+                            let ftnY = null;
 
-                            for (let i = 0; i < lines.length; i++) {
-                                const columns = lines[i].trim().split(/\s+/);
-                                if (columns.length === 0 || columns[0] === "") continue;
+                            // 1. חיפוש הכותרת FTN לפי מיקום פיזי בתמונה
+                            for (let i = 0; i < words.length; i++) {
+                                // מנקים קווים תחתונים וסימנים כדי למצוא את האותיות הנקיות
+                                let cleanText = words[i].text.toUpperCase().replace(/[^A-Z]/g, '');
+                                if (cleanText.includes('FTN') || cleanText.includes('FTM') || cleanText.includes('FIN')) {
+                                    let bbox = words[i].bbox;
+                                    // שומרים את נקודת המרכז של העמודה (ציר ה-X) ואת קו התחתית שלה (ציר ה-Y)
+                                    ftnColumnXCenter = (bbox.x0 + bbox.x1) / 2;
+                                    ftnY = bbox.y1;
+                                    break; // מצאנו, עוצרים את החיפוש
+                                }
+                            }
 
-                                // 1. חיפוש הכותרת FTN - גרסה סלחנית במיוחד
-                                if (ftnColumnIndex === -1) {
-                                    for (let j = 0; j < columns.length; j++) {
-                                        // מנקה את הטקסט מסימנים כמו קווים תחתונים (_) או נקודות כדי למצוא את האותיות נקיות
-                                        const cleanText = columns[j].toUpperCase().replace(/[^A-Z]/g, '');
-                                        // מחפש FTN או שגיאות קריאה נפוצות של התוכנה
-                                        if (cleanText.includes('FTN') || cleanText.includes('FTM') || cleanText.includes('FIN')) {
-                                            ftnColumnIndex = j;
-                                            break;
+                            if (ftnColumnXCenter !== null) {
+                                // 2. סריקת כל המילים ואיסוף רק אלו שמתחת לעמודה
+                                for (let i = 0; i < words.length; i++) {
+                                    let word = words[i];
+                                    let bbox = word.bbox;
+                                    
+                                    // אם המילה מופיעה בשורה שמתחת לכותרת
+                                    if (bbox.y0 > ftnY) {
+                                        let wordXCenter = (bbox.x0 + bbox.x1) / 2;
+                                        
+                                        // הסטייה המותרת (פיקסלים) ימינה ושמאלה מהמרכז של FTN
+                                        // רחב מספיק כדי לתפוס את כל המספר גם אם הוא קצת זז הצידה
+                                        let maxDeviation = 120; 
+                                        
+                                        if (Math.abs(wordXCenter - ftnColumnXCenter) < maxDeviation) {
+                                            // תיקון טעויות קריאה של המצלמה (למשל האות O במקום אפס)
+                                            let text = word.text.replace(/O/gi, '0');
+                                            
+                                            // מחפשים מספר נקי בחתיכת הטקסט הזו
+                                            let match = text.match(/\d+/);
+                                            if (match) {
+                                                numbers.push(match[0]);
+                                            }
                                         }
-                                    }
-                                } 
-                                // 2. אם כבר מצאנו את העמודה בשורות קודמות
-                                else if (columns.length > ftnColumnIndex) {
-                                    let cellValue = columns[ftnColumnIndex];
-                                    
-                                    // תיקון שגיאות OCR נפוצות למספרים (למשל, O לאפס)
-                                    cellValue = cellValue.replace(/O/gi, '0');
-                                    
-                                    // מחפשים רק רצף חוקי של 3 עד 8 ספרות
-                                    let match = cellValue.match(/\d{3,8}/);
-                                    if (match) {
-                                        numbers.push(match[0]);
                                     }
                                 }
                             }
@@ -571,11 +581,11 @@
                                     statusDiv.innerHTML = 'הסריקה בוטלה.';
                                 }
                             } else {
-                                if (ftnColumnIndex === -1) {
+                                if (ftnColumnXCenter === null) {
                                     alert("לא הצלחתי לזהות את הכותרת 'FTN' בדף. אנא ודא שהיא מופיעה ברור בתמונה (ללא קשקושים שעולים עליה).");
                                     statusDiv.innerHTML = 'לא נמצאה כותרת FTN.';
                                 } else {
-                                    alert("זיהיתי את העמודה FTN, אבל לא מצאתי מספרי כלים תקינים תחתיה.");
+                                    alert("זיהיתי את העמודה FTN, אבל לא מצאתי מספרי כלים ברורים תחתיה.");
                                     statusDiv.innerHTML = 'לא נמצאו מספרים בעמודה.';
                                 }
                             }
