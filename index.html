@@ -53,7 +53,7 @@
 
     <!-- הודעות קופצות (Toast) -->
     <div id="toast-container" class="fixed bottom-5 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none">
-        <div id="toast-message" class="toast bg-gray-900 text-white px-6 py-3 rounded-full shadow-lg font-bold text-sm text-center"></div>
+        <div id="toast-message" class="toast bg-gray-900 text-white px-6 py-3 rounded-full shadow-lg font-bold text-sm text-center w-max"></div>
     </div>
 
     <!-- מודל (חלון קופץ) לבחירת מכונה להעתקה -->
@@ -89,11 +89,17 @@
         <div class="max-w-4xl mx-auto px-4 h-16 flex justify-between items-center">
             <div class="flex items-center space-x-2 space-x-reverse">
                 <div class="w-10 h-10 bg-etm-red rounded-xl flex items-center justify-center shadow-inner relative overflow-hidden">
-                    <svg viewBox="0 0 100 100" class="w-7 h-7" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M 30 90 L 30 50 C 30 40, 25 35, 20 20 L 40 20 C 35 35, 30 40, 30 50 Z" fill="#ffffff" />
-                        <path d="M 50 90 L 50 40 L 45 40 L 45 20 L 55 20 L 55 40 L 50 40 Z" fill="#ffffff" opacity="0.8" />
-                        <path d="M 70 90 L 70 50 C 70 40, 75 35, 80 20 L 60 20 C 65 35, 70 40, 70 50 Z" fill="#ffffff" />
-                        <path d="M 68 55 L 72 55 M 68 65 L 72 65 M 68 75 L 72 75 M 68 85 L 72 85" stroke="#dc2626" stroke-width="2" />
+                    <!-- איור של שלושה כלי חיתוך (מקדח, כרסום אצבע, כרסום הברגה) -->
+                    <svg viewBox="0 0 100 100" class="w-8 h-8" xmlns="http://www.w3.org/2000/svg">
+                        <!-- מקדח -->
+                        <path d="M 25 20 L 35 20 L 35 70 L 30 85 L 25 70 Z" fill="#ffffff" />
+                        <path d="M 25 30 L 35 40 M 25 45 L 35 55 M 25 60 L 35 70" stroke="#dc2626" stroke-width="2" />
+                        <!-- כרסום אצבע -->
+                        <path d="M 45 20 L 55 20 L 55 80 L 45 80 Z" fill="#ffffff" opacity="0.9"/>
+                        <path d="M 45 35 L 55 35 M 45 50 L 55 50 M 45 65 L 55 65" stroke="#dc2626" stroke-width="2.5" />
+                        <!-- כרסום הברגה -->
+                        <path d="M 65 20 L 75 20 L 75 75 L 65 75 Z" fill="#ffffff" />
+                        <path d="M 63 30 L 77 30 M 63 35 L 77 35 M 63 40 L 77 40 M 63 45 L 77 45 M 63 50 L 77 50 M 63 55 L 77 55 M 63 60 L 77 60" stroke="#dc2626" stroke-width="1.5" />
                     </svg>
                 </div>
                 <h1 class="text-2xl font-black tracking-tight text-gray-800"><span class="text-etm-red">CNC</span> Tools</h1>
@@ -122,19 +128,21 @@
 
             <!-- OCR Scanner Section -->
             <div class="bg-white p-5 rounded-2xl shadow border border-gray-100 mb-8">
-                <h2 class="text-xl font-bold text-gray-800 mb-4 px-1">סריקת רשימת כלים מתמונה</h2>
+                <h2 class="text-xl font-bold text-gray-800 mb-4 px-1">סריקת רשימת כלים מתמונה (לפי עמודת FTN)</h2>
                 <div class="flex gap-4">
-                    <!-- כפתור צילום מהמצלמה -->
+                    <!-- כפתור צילום מהמצלמה בלבד -->
                     <label class="flex-1 bg-etm-red hover:bg-red-700 text-white text-center py-4 rounded-xl shadow cursor-pointer font-bold flex flex-col justify-center items-center gap-2 transition active:scale-95">
                         <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                         <span>צלם רשימה</span>
+                        <!-- שים לב ל- capture="environment" שמכריח פתיחת מצלמה -->
                         <input type="file" id="ocr-camera" accept="image/*" capture="environment" class="hidden" onchange="handleOCR(event)">
                     </label>
                     
-                    <!-- כפתור העלאה מהגלריה -->
+                    <!-- כפתור העלאה מהגלריה בלבד -->
                     <label class="flex-1 bg-gray-800 hover:bg-gray-700 text-white text-center py-4 rounded-xl shadow cursor-pointer font-bold flex flex-col justify-center items-center gap-2 transition active:scale-95">
                         <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                         <span>בחר מגלריה</span>
+                        <!-- כאן אין capture, אז זה פותח בחירת קבצים/גלריה -->
                         <input type="file" id="ocr-gallery" accept="image/*" class="hidden" onchange="handleOCR(event)">
                     </label>
                 </div>
@@ -150,7 +158,7 @@
                     <!-- Machine 1 -->
                     <div onclick="openMachine('1', 'Hermle C22 - מכונה 1')" class="machine-card bg-white rounded-2xl shadow border border-gray-100 cursor-pointer group">
                         <div class="h-48 relative overflow-hidden flex items-center justify-center bg-white rounded-t-2xl border-b border-gray-200">
-                            <img src="machine.png" alt="Hermle C22" class="machine-img z-10 relative" onerror="this.onerror=null; this.src='https://placehold.co/400x300/ffffff/dc2626?text=Hermle+C22';">
+                            <img src="machine.png" alt="Hermle C22" class="machine-img z-10 relative object-contain h-full" onerror="this.onerror=null; this.src='https://placehold.co/400x300/ffffff/dc2626?text=Hermle+C22';">
                             <div class="absolute top-3 right-3 bg-etm-red text-white text-xs px-2.5 py-1 rounded-md font-bold shadow-sm z-20">C22</div>
                         </div>
                         <div class="p-5 flex justify-between items-center bg-white rounded-b-2xl">
@@ -162,7 +170,7 @@
                     <!-- Machine 2 -->
                     <div onclick="openMachine('2', 'Hermle C22 - מכונה 2')" class="machine-card bg-white rounded-2xl shadow border border-gray-100 cursor-pointer group">
                         <div class="h-48 relative overflow-hidden flex items-center justify-center bg-white rounded-t-2xl border-b border-gray-200">
-                             <img src="machine.png" alt="Hermle C22" class="machine-img z-10 relative" onerror="this.onerror=null; this.src='https://placehold.co/400x300/ffffff/dc2626?text=Hermle+C22';">
+                             <img src="machine.png" alt="Hermle C22" class="machine-img z-10 relative object-contain h-full" onerror="this.onerror=null; this.src='https://placehold.co/400x300/ffffff/dc2626?text=Hermle+C22';">
                             <div class="absolute top-3 right-3 bg-etm-red text-white text-xs px-2.5 py-1 rounded-md font-bold shadow-sm z-20">C22</div>
                         </div>
                         <div class="p-5 flex justify-between items-center bg-white rounded-b-2xl">
@@ -174,7 +182,7 @@
                     <!-- Machine 3 -->
                     <div onclick="openMachine('3', 'Hermle C22 - מכונה 3')" class="machine-card bg-white rounded-2xl shadow border border-gray-100 cursor-pointer group">
                         <div class="h-48 relative overflow-hidden flex items-center justify-center bg-white rounded-t-2xl border-b border-gray-200">
-                             <img src="machine.png" alt="Hermle C22" class="machine-img z-10 relative" onerror="this.onerror=null; this.src='https://placehold.co/400x300/ffffff/dc2626?text=Hermle+C22';">
+                             <img src="machine.png" alt="Hermle C22" class="machine-img z-10 relative object-contain h-full" onerror="this.onerror=null; this.src='https://placehold.co/400x300/ffffff/dc2626?text=Hermle+C22';">
                             <div class="absolute top-3 right-3 bg-etm-red text-white text-xs px-2.5 py-1 rounded-md font-bold shadow-sm z-20">C22</div>
                         </div>
                         <div class="p-5 flex justify-between items-center bg-white rounded-b-2xl">
@@ -483,7 +491,8 @@
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
                     
-                    const MAX_WIDTH = 1000;
+                    // כיווץ התמונה למניעת קריסת הטלפון
+                    const MAX_WIDTH = 1200;
                     let width = img.width;
                     let height = img.height;
                     
@@ -510,28 +519,69 @@
                                 }
                             });
                             
+                            // ===== תחילת הלוגיקה החכמה לזיהוי עמודת FTN =====
                             const text = result.data.text;
-                            const numbers = text.match(/\b\d{3,8}\b/g) || [];
-                            
+                            const lines = text.split('\n');
+                            let numbers = [];
+                            let ftnColumnIndex = -1;
+
+                            for (let i = 0; i < lines.length; i++) {
+                                // מנקה רווחים מיותרים ומפצל את השורה למילים/עמודות לפי המרווחים ביניהן
+                                const columns = lines[i].trim().split(/\s+/);
+                                if (columns.length === 0 || columns[0] === "") continue;
+
+                                // 1. חיפוש הכותרת FTN אם עדיין לא מצאנו אותה
+                                if (ftnColumnIndex === -1) {
+                                    for (let j = 0; j < columns.length; j++) {
+                                        if (columns[j].toUpperCase().includes('FTN')) {
+                                            ftnColumnIndex = j; // שומרים את המיקום של העמודה (למשל, עמודה מספר 2)
+                                            break;
+                                        }
+                                    }
+                                } 
+                                // 2. אם כבר מצאנו את העמודה בשורות קודמות, ניקח את המספר שבאותו מיקום בדיוק
+                                else if (columns.length > ftnColumnIndex) {
+                                    let cellValue = columns[ftnColumnIndex];
+                                    
+                                    // תיקון שגיאות OCR נפוצות (למשל, זיהוי של האות O באנגלית במקום הספרה אפס)
+                                    cellValue = cellValue.replace(/O/gi, '0');
+                                    
+                                    // מחפשים רק רצף חוקי של 3 עד 8 ספרות
+                                    let match = cellValue.match(/\d{3,8}/);
+                                    if (match) {
+                                        numbers.push(match[0]);
+                                    }
+                                }
+                            }
+                            // ===== סוף הלוגיקה =====
+
                             if (numbers.length > 0) {
-                                let targetMachine = prompt("נמצאו מספרים! לאיזה מכונה להוסיף? (1, 2 או 3)\nמספרים שנמצאו: " + numbers.join(', '));
+                                let targetMachine = prompt("נמצאו " + numbers.length + " כלים בעמודת FTN!\nלאיזו מכונה להוסיף? (1, 2 או 3)\n\nמספרים שנסרקו: " + numbers.join(', '));
                                 if (['1','2','3'].includes(targetMachine)) {
                                     numbers.forEach(num => {
-                                        db[targetMachine].push({ number: num, desc: 'נסרק מתמונה', rf: '', chip: false, adapter: '', shrink: '', notes: '' });
+                                        db[targetMachine].push({ number: num, desc: 'נסרק מ-FTN', rf: '', chip: false, adapter: '', shrink: '', notes: '' });
                                     });
                                     saveDB();
                                     showToast('הכלים נוספו בהצלחה למכונה ' + targetMachine);
                                     statusDiv.innerHTML = 'הסריקה הסתיימה בהצלחה!';
+                                } else if (targetMachine !== null) {
+                                    alert("מספר מכונה לא תקין. הסריקה בוטלה.");
+                                    statusDiv.innerHTML = 'הסריקה בוטלה.';
                                 } else {
-                                    statusDiv.innerHTML = 'הסריקה בוטלה (לא נבחרה מכונה).';
+                                    statusDiv.innerHTML = 'הסריקה בוטלה.';
                                 }
                             } else {
-                                alert("לא זוהו מספרי כלים ברורים בתמונה. נסה לצלם מקרוב יותר.");
-                                statusDiv.innerHTML = 'לא נמצאו כלים ברורים.';
+                                if (ftnColumnIndex === -1) {
+                                    alert("לא הצלחתי לזהות את הכותרת 'FTN' בדף. אנא ודא שהיא מופיעה ברור בתמונה.");
+                                    statusDiv.innerHTML = 'לא נמצאה כותרת FTN.';
+                                } else {
+                                    alert("זיהיתי את העמודה FTN, אבל לא מצאתי מספרי כלים תקינים תחתיה.");
+                                    statusDiv.innerHTML = 'לא נמצאו מספרים בעמודה.';
+                                }
                             }
                         } catch (tessErr) {
                             console.error(tessErr);
-                            alert("שגיאה בסריקה. ודא שאתה מחובר לאינטרנט בפעם הראשונה.");
+                            alert("שגיאה בסריקה. ודא שאתה מחובר לאינטרנט בפעם הראשונה כדי להוריד נתונים.");
                             statusDiv.innerHTML = 'שגיאת רשת/סריקה.';
                         }
                         
